@@ -1,8 +1,6 @@
 package de.oglimmer.client;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,6 +10,8 @@ import java.net.URL;
 
 public class HttpRequestProcessor {
 
+	private static final int MAX_BYTES = 500;
+	
 	private int delay;
 	private long id;
 
@@ -19,10 +19,10 @@ public class HttpRequestProcessor {
 	private boolean failed = false;
 
 	private long lastChunkWrittenAt;
+	private int bytesWritten;
 
 	private HttpURLConnection con;
 	private OutputStream os;
-	private BufferedInputStream fis;
 
 	public HttpRequestProcessor(int delay, long id) {
 		this.id = id;
@@ -37,14 +37,6 @@ public class HttpRequestProcessor {
 	}
 
 	public void close() {
-
-		try {
-			if (fis != null) {
-				fis.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		try {
 			if (os != null) {
@@ -76,11 +68,10 @@ public class HttpRequestProcessor {
 			con.setDefaultUseCaches(false);
 			con.setInstanceFollowRedirects(false);
 			con.setUseCaches(false);
-			con.setFixedLengthStreamingMode(Startup.largeFile.length());
+			con.setFixedLengthStreamingMode(MAX_BYTES+4);
 
 			os = con.getOutputStream();
-			fis = new BufferedInputStream(new FileInputStream(Startup.largeFile));
-
+			os.write("foo=".getBytes());
 			lastChunkWrittenAt = System.currentTimeMillis();
 		} catch (IOException e) {
 			failed = true;
@@ -95,10 +86,9 @@ public class HttpRequestProcessor {
 		}
 
 		try {
-			int readLen;
-			byte[] byteBuff = new byte[256];
-			if ((readLen = fis.read(byteBuff, 0, byteBuff.length)) > -1) {
-				os.write(byteBuff, 0, readLen);
+			if (bytesWritten < MAX_BYTES) {
+				bytesWritten++;
+				os.write('o');
 				lastChunkWrittenAt = System.currentTimeMillis();
 			} else {
 				allDataSent();
@@ -139,7 +129,7 @@ public class HttpRequestProcessor {
 		failed = false;
 		con = null;
 		os = null;
-		fis = null;
+		bytesWritten = 0;
 	}
 
 	private String readResponse(InputStream is) throws IOException {

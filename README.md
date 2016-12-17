@@ -1,8 +1,8 @@
 This simulates a slow client and how an asynchronous servlet processing make things better
 ===========================================================================================
 
-how to run
-----------
+how to run the upload test
+--------------------------
 
 1.) start web server
 
@@ -28,5 +28,13 @@ kill -9 $(ps -ef|grep de.oglimmer.client.Startup|grep -v "grep"|awk '{print $2}'
 
 8.) access http://localhost:8080 (e.g. curl -v http://localhost:8080) as the attacker can't consume all threads.
 
+
+how to run the post test
+--------------------------
+
+Similar to upload test, just use `PostServletAsync` or `PostServletSync`
+
+
 Remarks:
+--------
 - the attack works with very limited bandwidth, as it is not a large amount of data which kills the server, it is the slow connection from the client

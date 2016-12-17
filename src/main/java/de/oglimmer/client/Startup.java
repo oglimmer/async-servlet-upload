@@ -1,6 +1,5 @@
 package de.oglimmer.client;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +13,6 @@ public class Startup {
 	static String host = "localhost";
 	static String port = "8080";
 	static String uri;
-	static File largeFile;
 
 	private volatile static boolean running = true;
 	private volatile static ConnectionList ce = new ConnectionList();
@@ -60,33 +58,28 @@ public class Startup {
 	}
 
 	private static void buildConfig(String[] args) {
-		if (args.length < 2) {
+		if (args.length < 1) {
 			System.out.println(
-					"Start with parameter <filename> <UploadServletAsync|UploadServletSync|FULL_URL> [#-normal-connections] [#-bad-connections] [delay for bad connections]");
+					"Start with parameter <UploadServletAsync|UploadServletSync|PostServletAsync|PostServletSync|FULL_URL> [#-normal-connections] [#-bad-connections] [delay for bad connections]");
 			System.exit(1);
 		}
-		largeFile = new File(args[0]);
-		if (!largeFile.exists()) {
-			System.out.println("File " + largeFile + " doesn't exist!");
-			System.exit(2);
-		}
-		if (args[1].startsWith("http")) {
-			args[1] = args[1].substring(7);// cut http://
-			host = args[1].substring(0, args[1].indexOf(":"));
-			port = args[1].substring(args[1].indexOf(":") + 1, args[1].indexOf("/"));
-			uri = args[1].substring(args[1].indexOf("/"));
+		if (args[0].startsWith("http")) {
+			args[0] = args[0].substring(7);// cut http://
+			host = args[0].substring(0, args[0].indexOf(":"));
+			port = args[0].substring(args[0].indexOf(":") + 1, args[0].indexOf("/"));
+			uri = args[0].substring(args[0].indexOf("/"));
 		} else {
-			uri = "/" + args[1];
+			uri = "/" + args[0];
 		}
 
+		if (args.length > 1) {
+			numberNormalConnections = Integer.parseInt(args[1]);
+		}
 		if (args.length > 2) {
-			numberNormalConnections = Integer.parseInt(args[2]);
+			numberBadConnections = Integer.parseInt(args[2]);
 		}
 		if (args.length > 3) {
-			numberBadConnections = Integer.parseInt(args[3]);
-		}
-		if (args.length > 4) {
-			delay = Integer.parseInt(args[4]);
+			delay = Integer.parseInt(args[3]);
 		}
 		System.out.println("Using http://" + host + ":" + port + uri + " with normal " + numberNormalConnections
 				+ " thread and " + numberBadConnections + " bad thread with delay of " + delay + ".");
