@@ -34,6 +34,11 @@ how to run the post test
 
 Similar to upload test, just use `PostServletAsync` or `PostServletSync`
 
+what about sending the header data very slow?
+---------------------------------------------
+
+The class the de.oglimmer.client.raw.RawClient sends 250 parallel simple POST request to /PostServletAsync and 
+it does that very slow including sending the request headers, but (modern) servlet container process this asynchronously.
 
 Remarks:
 --------

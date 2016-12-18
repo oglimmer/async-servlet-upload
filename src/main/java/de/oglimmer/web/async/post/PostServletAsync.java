@@ -24,25 +24,30 @@ public class PostServletAsync extends HttpServlet {
 		int id = ThreadCountListener.incActive();
 		AsyncContext context = request.startAsync();
 		ServletInputStream inputStream = request.getInputStream();
-		inputStream.setReadListener(new BufferedReadListenerImpl(inputStream, context, params -> {
-			String param = params.get("foo");
-			if (!("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
-					+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooo").equals(param)) {
-				System.out.println("failed to get param: " + param);
-			}
-			try {
-				context.getResponse().getWriter().println("done");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try {
+			inputStream.setReadListener(new BufferedReadListenerImpl(inputStream, context, params -> {
+				String param = params.get("foo");
+				if (!("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"
+						+ "oooooooooooooooooooooooooooooooooooooooooooooooooooooo").equals(param)) {
+					System.out.println("failed to get param: " + param);
+				}
+				try {
+					context.getResponse().getWriter().println("done");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				ThreadCountListener.decActive(id);
+			}, VOID -> {
+				ThreadCountListener.decActive(id);
+			}));
+		} catch (IllegalStateException e) {
 			ThreadCountListener.decActive(id);
-		}, VOID -> {
-			ThreadCountListener.decActive(id);
-		}));
+			throw e;
+		}
 	}
 }
