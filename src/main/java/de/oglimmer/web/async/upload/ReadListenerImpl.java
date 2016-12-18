@@ -1,4 +1,4 @@
-package de.oglimmer.web.async;
+package de.oglimmer.web.async.upload;
 
 import java.io.EOFException;
 import java.io.IOException;
