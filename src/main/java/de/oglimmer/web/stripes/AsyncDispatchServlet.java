@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.controller;
+package de.oglimmer.web.stripes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +29,8 @@ import javax.servlet.http.Part;
 
 import de.oglimmer.web.ThreadCountListener;
 import de.oglimmer.web.async.post.BufferedReadListenerImpl;
+import net.sourceforge.stripes.controller.DispatcherServlet;
+import net.sourceforge.stripes.controller.StripesRequestWrapper;
 
 @WebServlet(asyncSupported = true, urlPatterns = "*.action")
 public class AsyncDispatchServlet extends DispatcherServlet {
