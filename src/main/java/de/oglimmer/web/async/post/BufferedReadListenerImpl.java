@@ -23,7 +23,7 @@ public class BufferedReadListenerImpl implements ReadListener {
 	private Consumer<Void> failed;
 	private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-	BufferedReadListenerImpl(ServletInputStream inputStream, AsyncContext asyncCtxt,
+	public BufferedReadListenerImpl(ServletInputStream inputStream, AsyncContext asyncCtxt,
 			Consumer<Map<String, String>> success, Consumer<Void> failed) {
 		this.inputStream = inputStream;
 		this.asyncCtxt = asyncCtxt;
@@ -50,25 +50,29 @@ public class BufferedReadListenerImpl implements ReadListener {
 
 	@Override
 	public void onAllDataRead() throws IOException {
-		asyncCtxt.complete();
 		ThreadCountListener.incAll(System.currentTimeMillis() - start, buffer.size());
 		success.accept(transform());
+		asyncCtxt.complete();
 	}
 
 	private Map<String, String> transform() {
 		Map<String, String> postParams = new HashMap<>();
 		for (String keyValue : buffer.toString().split("\\&")) {
 			String[] keyValues = keyValue.split("=");
-			postParams.put(keyValues[0], keyValues[1]);
+			if (keyValues.length > 0) {
+				String key = keyValues[0];
+				String val = keyValues.length > 1 ? keyValues[1] : null;
+				postParams.put(key, val);
+			}
 		}
 		return postParams;
 	}
 
 	@Override
 	public void onError(final Throwable t) {
-		asyncCtxt.complete();
 		t.printStackTrace();
 		failed.accept(null);
+		asyncCtxt.complete();
 	}
 
 }

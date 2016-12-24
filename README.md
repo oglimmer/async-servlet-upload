@@ -40,6 +40,12 @@ what about sending the header data very slow?
 The class the de.oglimmer.client.raw.RawClient sends 250 parallel simple POST request to /PostServletAsync and 
 it does that very slow including sending the request headers, but (modern) servlet container process this asynchronously.
 
+how about stripes framework?
+----------------------------
+
+The `net.sourceforge.stripes.controller.DispatcherServlet` process all POST requests blocking. The class
+`AsyncDispatcherServlet` shows as a proof of concept how asynchronous processing could work. This works only within Tomcat, not Jetty.  
+
 Remarks:
 --------
 - the attack works with very limited bandwidth, as it is not a large amount of data which kills the server, it is the slow connection from the client
